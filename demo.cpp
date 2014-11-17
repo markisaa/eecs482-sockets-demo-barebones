@@ -73,7 +73,7 @@ void clientStart(int fd) {
   char buf[kBufferSize];
   fill_n(buf, kBufferSize, '\0');
   ::recv(fd, reinterpret_cast<void*>(&buf), kBufferSize, 0);
-  
+
   cerr << "Client received response: " << buf << endl;
 
   //Clean up:
@@ -84,7 +84,6 @@ void clientStart(int fd) {
 int createServerSocket() {
   addrinfo* info = populateAddrInfo();
   int fd = getSocket(*info);
-  ::freeaddrinfo(info);
 
   //Allow us to reuse addresses/ports from run to run:
   int yes = 1;
@@ -92,6 +91,7 @@ int createServerSocket() {
 
   //Tell the socket what port we are listening on:
   ::bind(fd, info->ai_addr, info->ai_addrlen);
+  ::freeaddrinfo(info);
 
   //Tell the outside world that we're ready to be connected to:
   ::listen(fd, kBacklogSize);
@@ -103,10 +103,10 @@ int createClientSocket() {
   //Tell it who we want to talk to:
   addrinfo* info = populateAddrInfo();
   int fd = getSocket(*info);
-  ::freeaddrinfo(info);
 
   //Actually connect to the server:
   ::connect(fd, info->ai_addr, info->ai_addrlen);
+  ::freeaddrinfo(info);
 
   return fd;
 }
